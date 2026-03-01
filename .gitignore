@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS
+.DS_Store
+
+# Streamlit (optional but clean)
+.streamlit/
+
+# Local data cache (if you store API results)
+data/*.json
+data/*.csv
+data/*.parquet
+
+# Virtual environments
+.venv
+venv
+
+# Secrets storage
+.env
