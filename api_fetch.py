@@ -7,6 +7,7 @@ import requests
 API_URL_ROOT = "https://financialmodelingprep.com/stable/"
 api_key = os.environ["API_KEY"]
 
+
 def call_api(symbol,api,items_to_return):
     """
     Generalized function for calling the APIs at Financial Modeling Prep (FMP)
@@ -51,7 +52,8 @@ def call_api(symbol,api,items_to_return):
             return response_dict
         else:
             return {k:v for k,v in response_dict.items() if k in items_to_return}
-    
+
+
 def get_quote_data(symbol):
     """
     Get share price quote information from the Financial Modeling Prep API
@@ -61,6 +63,7 @@ def get_quote_data(symbol):
     api = "quote"
     items_to_return = ["symbol","name","price","marketCap"]
     return call_api(symbol,api,items_to_return)
+
 
 def get_income_statement_data(symbol):
     """
@@ -78,6 +81,7 @@ def get_income_statement_data(symbol):
     ]
     return call_api(symbol,api,items_to_return)
 
+
 def compute_fields_not_in_api(quote_data,income_statement_data):
     """
     To prevent an unnecessary API call, compute metrics like PE ratio using exsting data
@@ -87,10 +91,15 @@ def compute_fields_not_in_api(quote_data,income_statement_data):
     """
     try:
         pe_ratio = float(quote_data["price"]) / float(income_statement_data["eps"])
-        other_data = {"pe_ratio":pe_ratio}
+        net_profit_ratio = float(income_statement_data["netIncome"]) / float(income_statement_data["revenue"])
+        other_data = {
+            "pe_ratio":pe_ratio,
+            "net_profit_ratio":net_profit_ratio
+        }
     except:
         other_data = {}
     return other_data
+
 
 def combine_data_into_dataframe(quote_data,income_statement_data,other_data):
     """
@@ -111,11 +120,11 @@ def combine_data_into_dataframe(quote_data,income_statement_data,other_data):
         "revenue":"Total Revenue",
         "netIncome":"Total Net Income",
         "eps":"Earnings Per Share",
-        "pe_ratio":"Price to Earnings Ratio"
+        "pe_ratio":"Price to Earnings Ratio",
+        "net_profit_ratio":"Net Profit ratio"
     }
 
     combined_dict = quote_data | income_statement_data | other_data
     df = pd.DataFrame(combined_dict,index = ["api_output"]).transpose().rename(pretty_names,axis = 0)
 
-    
     return df
