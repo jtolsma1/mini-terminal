@@ -4,8 +4,10 @@ import pandas as pd
 import requests
 
 
-API_URL_ROOT = "https://financialmodelingprep.com/stable/"
-api_key = os.environ["API_KEY"]
+def get_api_params():
+    api_url_root = os.environ["api_url_root"]
+    api_key = os.environ["API_KEY"]
+    return api_url_root,api_key
 
 
 def call_api(symbol,api,items_to_return):
@@ -26,7 +28,7 @@ def call_api(symbol,api,items_to_return):
         attempts = 2
         wait_secs = 5
 
-        url = os.path.join(API_URL_ROOT,api)
+        url = os.path.join(api_url_root,api)
         print(f"Fetching {api.replace("-"," ")} from {url}")
         for attempt in range(attempts):
             response = requests.get(
