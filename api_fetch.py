@@ -4,13 +4,16 @@ import pandas as pd
 import requests
 
 
-def get_api_params():
-    api_url_root = os.environ["api_url_root"]
-    api_key = os.environ["API_KEY"]
-    return api_url_root,api_key
+# api_url_root = os.environ["API_URL_ROOT"]
+# api_key = os.environ["API_KEY"]
 
-
-def call_api(symbol,api,items_to_return):
+def call_api(
+        symbol,
+        api_url_root,
+        api_key,
+        api,
+        items_to_return
+    ):
     """
     Generalized function for calling the APIs at Financial Modeling Prep (FMP)
     @param symbol: ticker symbol for public company
@@ -56,7 +59,7 @@ def call_api(symbol,api,items_to_return):
             return {k:v for k,v in response_dict.items() if k in items_to_return}
 
 
-def get_quote_data(symbol):
+def get_quote_data(symbol,api_url_root,api_key):
     """
     Get share price quote information from the Financial Modeling Prep API
     @param symbol: ticker symbol for public company
@@ -64,10 +67,10 @@ def get_quote_data(symbol):
     """
     api = "quote"
     items_to_return = ["symbol","name","price","marketCap"]
-    return call_api(symbol,api,items_to_return)
+    return call_api(symbol,api_url_root,api_key,api,items_to_return)
 
 
-def get_income_statement_data(symbol):
+def get_income_statement_data(symbol,api_url_root,api_key):
     """
     Get income statemnt information from the Financial Modeling Prep API
     @param symbol: ticker symbol for public company
@@ -81,7 +84,7 @@ def get_income_statement_data(symbol):
         "netIncome",
         "eps",
     ]
-    return call_api(symbol,api,items_to_return)
+    return call_api(symbol,api_url_root,api_key,api,items_to_return)
 
 
 def compute_fields_not_in_api(quote_data,income_statement_data):
@@ -92,15 +95,16 @@ def compute_fields_not_in_api(quote_data,income_statement_data):
     @return: computed outputs as dictioanry
     """
     try:
-        pe_ratio = float(quote_data["price"]) / float(income_statement_data["eps"])
-        net_profit_ratio = float(income_statement_data["netIncome"]) / float(income_statement_data["revenue"])
-        other_data = {
-            "pe_ratio":pe_ratio,
-            "net_profit_ratio":net_profit_ratio
+        price = float(quote_data["price"])
+        eps = float(income_statement_data["eps"])
+        net_income = float(income_statement_data["netIncome"])
+        revenue = float(income_statement_data["revenue"])
+        return {
+            "pe_ratio":price/eps if eps else None,
+            "net_profit_ratio":net_income/revenue if revenue else None
         }
-    except:
-        other_data = {}
-    return other_data
+    except Exception:
+        return {}
 
 
 def combine_data_into_dataframe(quote_data,income_statement_data,other_data):
@@ -127,6 +131,6 @@ def combine_data_into_dataframe(quote_data,income_statement_data,other_data):
     }
 
     combined_dict = quote_data | income_statement_data | other_data
-    df = pd.DataFrame(combined_dict,index = ["api_output"]).transpose().rename(pretty_names,axis = 0)
+    df = pd.DataFrame(combined_dict,index = ["API Data"]).transpose().rename(pretty_names,axis = 0)
 
     return df
