@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from api_fetch import (
@@ -11,6 +12,7 @@ from api_fetch import (
 load_dotenv()
 api_url_root = os.getenv("API_URL_ROOT")
 api_key = os.getenv("API_KEY")
+log_path = os.path.join(os.getenv("PROJECT_ROOT"),os.getenv("LOGS_DIR"),"query_log.csv")
 
 if not api_url_root:
     st.error("Error: API url root not found in .env")
@@ -27,12 +29,12 @@ st.title("Mini Financial Terminal")
 
 # Function calls with cache
 @st.cache_data(ttl=60*60) # 1 hour cache
-def cached_get_quote_data(symbol,api_url_root,api_key):
-    return get_quote_data(symbol,api_url_root,api_key)
-
+def cached_get_quote_data(symbol,api_url_root,api_key,quote_cache_flag):
+    return get_quote_data(symbol,api_url_root,api_key), not quote_cache_flag["used_cache"]
+                          
 @st.cache_data(ttl=24*60*60) # 24 hour cache
-def cached_get_income_statement_data(symbol,api_url_root,api_key):
-    return get_income_statement_data(symbol,api_url_root,api_key)
+def cached_get_income_statement_data(symbol,api_url_root,api_key,income_cache_flag):
+    return get_income_statement_data(symbol,api_url_root,api_key), not income_cache_flag["used_cache"]
 
 # UI
 symbol = st.text_input(
@@ -59,8 +61,10 @@ if run:
         st.stop()
     
     with st.spinner(f"Fetching financial data for {symbol}..."):
-        quote_data = cached_get_quote_data(symbol,api_url_root,api_key)
-        income_statement_data = cached_get_income_statement_data(symbol,api_url_root,api_key)
+        quote_cache_flag = {"used_cache":False}
+        income_cache_flag = {"used_cache":False}
+        quote_data,quote_cache_bool = cached_get_quote_data(symbol,api_url_root,api_key,quote_cache_flag)
+        income_statement_data,income_cache_bool = cached_get_income_statement_data(symbol,api_url_root,api_key,income_cache_flag)
         other_data = compute_fields_not_in_api(
             quote_data,
             income_statement_data
@@ -70,7 +74,27 @@ if run:
             income_statement_data=income_statement_data,
             other_data=other_data
         )
-    
+
+        quote_api_success = False
+        income_api_success = False
+        if quote_data != {}:
+            quote_api_success = True
+        if income_api_success != {}:
+            income_api_success = True
+
+        log_df = pd.DataFrame([{
+            "symbol":symbol,
+            "request_datetime":pd.Timestamp.now(tz = 'America/Los_Angeles'),
+            "quote_api_sucess":quote_api_success,
+            "income_api_success":income_api_success,
+            "quote_from_cache":quote_cache_bool,
+            "income_statement_from_cache":income_cache_bool
+        }])
+
+        query_log = pd.read_csv(log_path)
+        query_log = pd.concat([query_log,log_df],axis = 0)
+        query_log.to_csv(log_path)
+
     st.subheader(f"{symbol} Latest Financial Data")
 
     st.dataframe(df,width ="stretch")
