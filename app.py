@@ -14,7 +14,7 @@ from api_fetch import (
 load_dotenv()
 api_url_root = os.getenv("API_URL_ROOT")
 api_key = os.getenv("API_KEY")
-log_path_root = os.path.join(os.getenv("PROJECT_ROOT"),os.getenv("LOGS_DIR"))
+log_path_root = os.path.join(os.getenv("PROJECT_ROOT"),"/logs")
 
 if not api_url_root:
     st.error("Error: API url root not found in .env")
@@ -26,7 +26,7 @@ if not api_key:
 
 if not log_path_root:
     st.error("Error: file path for logs not found in .env")    
-    st.stop
+    st.stop()
 
 st.set_page_config(page_title = "Mini Financial Terminal",layout = "wide")
 
