@@ -14,7 +14,9 @@ from api_fetch import (
 load_dotenv()
 api_url_root = os.getenv("API_URL_ROOT")
 api_key = os.getenv("API_KEY")
-log_path_root = os.path.join(os.getenv("PROJECT_ROOT"),"/logs")
+
+# disabled; all logging now in MongoDB
+# log_path_root = os.path.join(os.getenv("PROJECT_ROOT"),"/logs")
 
 @st.cache_resource
 def initiate_mongo_client():
@@ -39,9 +41,9 @@ if not api_key:
     st.error("Error: API key not found in .env")
     st.stop()
 
-if not log_path_root:
-    st.error("Error: file path for logs not found in .env")    
-    st.stop()
+# if not log_path_root:
+#     st.error("Error: file path for logs not found in .env")    
+#     st.stop()
 
 st.set_page_config(page_title = "Mini Financial Terminal",layout = "wide")
 
