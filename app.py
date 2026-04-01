@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
-import pytz
 import pandas as pd
 import streamlit as st
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from api_fetch import (
     get_quote_data,
@@ -15,6 +15,21 @@ load_dotenv()
 api_url_root = os.getenv("API_URL_ROOT")
 api_key = os.getenv("API_KEY")
 log_path_root = os.path.join(os.getenv("PROJECT_ROOT"),"/logs")
+
+@st.cache_resource
+def initiate_mongo_client():
+    client = MongoClient("mongodb://mongodb:27017")
+    db = client["mini_terminal"]
+    collection = db["query_collection_log"]
+    return collection
+
+collection = initiate_mongo_client()
+
+try:
+    collection.database.client.admin.command("ping")
+    st.sidebar.success("MongoDB connected")
+except Exception as e:
+    st.sidebar.error(f"MongoDB connection failed: {e}")
 
 if not api_url_root:
     st.error("Error: API url root not found in .env")
@@ -89,23 +104,15 @@ if run:
         if income_statement_data != {}:
             income_api_success = True
 
-        log_df = pd.DataFrame([{
+        # log the query in Mongo
+        collection.insert_one({
             "symbol":symbol,
             "request_datetime":pd.Timestamp.now(tz = 'America/Los_Angeles'),
             "quote_api_sucess":quote_api_success,
             "income_api_success":income_api_success,
             "quote_from_cache":not quote_cache_flag["ran"],
             "income_statement_from_cache":not income_cache_flag["ran"]
-        }])
-
-        log_date_tag = datetime.now(pytz.timezone("America/Los_Angeles")).strftime("%Y-%m-%d")
-        log_path = os.path.join(log_path_root,f"quote_log_{log_date_tag}.csv")
-        if os.path.exists(log_path):
-            query_log = pd.read_csv(log_path)
-            query_log = pd.concat([query_log,log_df],axis = 0)
-        else:
-            query_log = log_df
-        query_log.to_csv(log_path,index=False)
+        })
 
     st.subheader(f"{symbol} Latest Financial Data")
 
