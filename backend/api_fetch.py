@@ -2,10 +2,16 @@ import os
 import time
 import pandas as pd
 import requests
+from cachetools import TTLCache
+from cachetools.keys import hashkey
 
 
 # api_url_root = os.environ["API_URL_ROOT"]
 # api_key = os.environ["API_KEY"]
+
+quote_cache = TTLCache(maxsize=128,ttl = 60*60)
+income_statement_cache = TTLCache(maxsize = 128, ttl = 7*24*60*60)
+
 
 def call_api(
         symbol,
@@ -85,6 +91,21 @@ def get_income_statement_data(symbol,api_url_root,api_key):
         "eps",
     ]
     return call_api(symbol,api_url_root,api_key,api,items_to_return)
+
+def get_cached_quote_data(symbol,api_url_root,api_key):
+    key = hashkey(symbol,api_url_root,api_key)
+    hit = key in quote_cache
+    if not hit:
+        quote_cache[key] = get_quote_data(symbol,api_url_root,api_key)
+    return quote_cache[key], hit
+
+def get_cached_income_statement_data(symbol,api_url_root,api_key):
+    key = hashkey(symbol,api_url_root,api_key):
+    hit = key in income_statement_cache
+    if not hit:
+        income_statement_cache[key] = get_income_statement_data(symbol,api_url_root,api_key)
+    return income_statement_cache[key], hit
+    
 
 
 def compute_fields_not_in_api(quote_data,income_statement_data):

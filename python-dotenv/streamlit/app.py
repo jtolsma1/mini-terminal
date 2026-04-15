@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from api_fetch import (
+from backend.api_fetch import (
     get_quote_data,
     get_income_statement_data,
     compute_fields_not_in_api,
