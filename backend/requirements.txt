@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+pymongo
+pandas
+cachetools
+loguru
+python-dotenv
+requests
