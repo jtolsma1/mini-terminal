@@ -20,7 +20,7 @@ api_key = os.getenv("API_KEY")
 
 def initiate_mongo_client():
     client = MongoClient("mongodb://mongodb:27017")
-    db = client["mini_terminal"]
+    db = client["mini-terminal"]
     collection = db["query_collection_log"]
     return collection
 
@@ -35,7 +35,7 @@ def log_query_in_mongo(
         collection.insert_one({
             "app_name":app_name,
             "symbol":symbol,
-            "request_datetime":pd.Timestamp.now(tz = 'America/Los_Angeles'),
+            "request_datetime":pd.Timestamp.now(tz = 'America/Los_Angeles').tz_localize(None),
             "quote_api_success":quote_api_success,
             "income_api_success":income_api_success,
             "quote_cache_flag":quote_cache_flag,
