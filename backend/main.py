@@ -1,14 +1,12 @@
 import os
-from loguru import logger
-from datetime import datetime
+
 import pandas as pd
-import streamlit as st
+from loguru import logger
 from pymongo import MongoClient
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from cachetools import TTLCache
-from cachetools.keys import hashkey
+
 from api_fetch import (
     get_cached_quote_data,
     get_cached_income_statement_data,
@@ -40,8 +38,8 @@ def log_query_in_mongo(
             "request_datetime":pd.Timestamp.now(tz = 'America/Los_Angeles'),
             "quote_api_success":quote_api_success,
             "income_api_success":income_api_success,
-            "quote_from_cache":quote_cache_flag,
-            "income_staement_from_cache":income_statement_cache_flag,
+            "quote_cache_flag":quote_cache_flag,
+            "income_statement_cache_flag":income_statement_cache_flag,
         })
 
 collection = initiate_mongo_client()
@@ -67,8 +65,8 @@ class QueryResponse(BaseModel):
     rows:dict
     quote_data:dict
     income_statement_data:dict
-    quote_from_cache:bool
-    income_statement_from_cache:bool
+    quote_cache_flag:bool
+    income_statement_cache_flag:bool
 
 @app.post("/query")
 def run_query(request:QueryRequest):
@@ -76,7 +74,7 @@ def run_query(request:QueryRequest):
     symbol = request.symbol.strip().upper()
 
     if len(symbol) > 5:
-        raise ValueError("ticker symbol cannot be more than 5 characters")
+        raise HTTPException(status_code=422,detail="ticker symbol cannot be more than 5 characters")
 
     quote_data,quote_cache_flag = get_cached_quote_data(
         symbol,

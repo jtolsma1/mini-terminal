@@ -100,7 +100,7 @@ def get_cached_quote_data(symbol,api_url_root,api_key):
     return quote_cache[key], hit
 
 def get_cached_income_statement_data(symbol,api_url_root,api_key):
-    key = hashkey(symbol,api_url_root,api_key):
+    key = hashkey(symbol,api_url_root,api_key)
     hit = key in income_statement_cache
     if not hit:
         income_statement_cache[key] = get_income_statement_data(symbol,api_url_root,api_key)
