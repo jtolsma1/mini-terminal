@@ -62,7 +62,7 @@ class QueryRequest(BaseModel):
     app_name:str
 
 class QueryResponse(BaseModel):
-    rows:dict
+    rows:list
     quote_data:dict
     income_statement_data:dict
     quote_cache_flag:bool
