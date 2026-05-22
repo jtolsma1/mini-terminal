@@ -153,5 +153,6 @@ def combine_data_into_dataframe(quote_data,income_statement_data,other_data):
 
     combined_dict = quote_data | income_statement_data | other_data
     df = pd.DataFrame(combined_dict,index = ["API Data"]).transpose().rename(pretty_names,axis = 0)
+    df["API Data"] = df["API Data"].astype(str)
 
     return df
