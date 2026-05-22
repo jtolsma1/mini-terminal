@@ -1,16 +1,16 @@
 services:
-  mongodb:
-    image: "mongo"
-    volumes: 
-    - mongo_data:/data/db
+  # mongodb:
+  #   image: "mongo"
+  #   volumes: 
+  #   - mongo_data:/data/db
   fastapi:
     build: ./backend
     env_file: ./.env
     ports: 
     - "8000:8000"
-    depends_on: 
-    - mongodb
+    # depends_on: 
+    # - mongodb
 
-volumes:
-  mongo_data:
+# volumes:
+#   mongo_data:
 
