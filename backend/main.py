@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from loguru import logger
 from pymongo import MongoClient
+from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -19,10 +20,13 @@ api_url_root = os.getenv("API_URL_ROOT")
 api_key = os.getenv("API_KEY")
 
 def initiate_mongo_client():
-    client = MongoClient("mongodb://mongodb:27017")
-    db = client["mini-terminal"]
-    collection = db["query_collection_log"]
-    return collection
+    MONGODB_USERNAME = os.environ.get("MONGODB_USERNAME")
+    MONGODB_PASSWORD = os.environ.get("MONGODB_PASSWORD")
+    MONGODB_URL = os.environ.get("MONGODB_URL")
+    uri = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@{MONGODB_URL}/?appName=Cluster0"
+
+    client = MongoClient(uri,server_api = ServerApi("1"))
+    return client
 
 def log_query_in_mongo(
         app_name,
@@ -42,10 +46,12 @@ def log_query_in_mongo(
             "income_statement_cache_flag":income_statement_cache_flag,
         })
 
-collection = initiate_mongo_client()
+client = initiate_mongo_client()
+db = client["mini-terminal"]
+collection = db["query_logs"]
 
 try:
-    collection.database.client.admin.command("ping")
+    client.admin.command("ping")
     logger.info("MongoDB connection successful")
 except Exception as e:
     logger.exception(f"MongoDB connection failed: {e}")
@@ -63,6 +69,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     rows:list
+    labels:list
     quote_data:dict
     income_statement_data:dict
     quote_cache_flag:bool
@@ -114,6 +121,7 @@ def run_query(request:QueryRequest):
     
     return QueryResponse(
         rows = combined_df.to_dict(orient="records"),
+        labels =list(combined_df.index),
         quote_data = quote_data,
         income_statement_data = income_statement_data,
         quote_cache_flag = quote_cache_flag,
