@@ -75,6 +75,11 @@ class QueryResponse(BaseModel):
     quote_cache_flag:bool
     income_statement_cache_flag:bool
 
+# post a health output for AWS
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.post("/query")
 def run_query(request:QueryRequest):
 
