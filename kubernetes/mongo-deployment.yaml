@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: mini-terminal
+      component: mongo
+  template:
+    metadata:
+      labels:
+        app: mini-terminal
+        component: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGODB_INIT_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: MONGODB_INIT_ROOT_USERNAME
+                  key: MONGODB_INIT_ROOT_USERNAME
+            - name: MONGODB_INIT_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef: 
+                  name: API_URL_ROOT
+                  key: API_URL_ROOT
