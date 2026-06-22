@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-terminal-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels: 
+      app: mini-terminal
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: mini-terminal
+        component: backend
+    spec:
+      containers:
+        - name: mini-terminal-backend
+          image: 
+          ports:
+            - containerPort: 8000
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api_key
+                  key: api_key
+            - name: API_URL_ROOT
+              valueFrom:
+                secretKeyRef: 
+                  name: api_url
+                  key: api_url
