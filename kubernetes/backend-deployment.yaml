@@ -16,17 +16,27 @@ spec:
     spec:
       containers:
         - name: mini-terminal-backend
-          image: 
+          image: motetshurdle6p/mini-terminal-fastapi:2
           ports:
             - containerPort: 8000
           env:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: api_key
-                  key: api_key
+                  name: terminal-secret
+                  key: api-key
             - name: API_URL_ROOT
               valueFrom:
                 secretKeyRef: 
-                  name: api_url
-                  key: api_url
+                  name: terminal-secret
+                  key: api-url
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: terminal-secret
+                  key: mongo-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef: 
+                  name: terminal-secret
+                  key: mongo-password
