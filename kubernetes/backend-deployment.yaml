@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mini-terminal-backend
-          image: motetshurdle6p/mini-terminal-fastapi:2
+          image: motetshurdle6p/mini-terminal-fastapi:3
           ports:
             - containerPort: 8000
           env:
