@@ -65,6 +65,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     rows:list
+    labels: list
     quote_data:dict
     income_statement_data:dict
     quote_cache_flag:bool
@@ -116,6 +117,7 @@ def run_query(request:QueryRequest):
     
     return QueryResponse(
         rows = combined_df.to_dict(orient="records"),
+        labels = list(combined_df.index),
         quote_data = quote_data,
         income_statement_data = income_statement_data,
         quote_cache_flag = quote_cache_flag,
