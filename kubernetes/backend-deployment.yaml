@@ -23,20 +23,20 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: terminal-secret
+                  name: backend-mongo-secret
                   key: api-key
             - name: API_URL_ROOT
               valueFrom:
                 secretKeyRef: 
-                  name: terminal-secret
+                  name: backend-mongo-secret
                   key: api-url
             - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: terminal-secret
+                  name: backend-mongo-secret
                   key: mongo-username
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef: 
-                  name: terminal-secret
+                  name: backend-mongo-secret
                   key: mongo-password
