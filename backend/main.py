@@ -15,11 +15,13 @@ from api_fetch import (
 )
 
 load_dotenv()
-api_url_root = os.getenv("API_URL_ROOT")
-api_key = os.getenv("API_KEY")
+api_url_root = os.environ.get("API_URL_ROOT")
+api_key = os.environ.get("API_KEY")
+mongodb_username = os.environ.get("MONGO_INITDB_ROOT_USERNAME")
+mongodb_password = os.environ.get("MONGO_INITDB_ROOT_PASSWORD")
 
 def initiate_mongo_client():
-    client = MongoClient("mongodb://mongodb:27017")
+    client = MongoClient(f"mongodb://{mongodb_username}:{mongodb_password}@mongo-service:27017")
     db = client["mini-terminal"]
     collection = db["query_collection_log"]
     return collection
