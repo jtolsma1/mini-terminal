@@ -36,6 +36,9 @@ The Streamlit frontend that actually renders the terminal interface lives in a [
 
 ## If you really want to run it
 
-You'll need a free API key from [Financial Modeling Prep](https://financialmodelingprep.com). 
+You will need:
+- a free API key from [Financial Modeling Prep](https://financialmodelingprep.com). 
+- the [Financial Modeling Prep](https://financialmodelingprep.com) API url: __https://financialmodelingprep.com/stable/__ (deployed as a secret in this project)
+- a free-tier account and login credentials for managed database service [MongoDB Atlas](https://www.mongodb.com/products/platform)
 
 Beyond that, you're on your own — there are no setup instructions here by design. If you're the kind of person who would actually want to run this, you probably know what to do with a Dockerfile and a `kubernetes/` directory.
